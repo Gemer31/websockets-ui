@@ -1,4 +1,4 @@
-import { WsOperations } from '../types';
+import { Messages, WsOperations } from '../types';
 import { RoomsService } from '../services/rooms.service';
 import { getWsResponse } from '../helpers';
 import { IUserWithIndex } from '../models';
@@ -32,10 +32,17 @@ export class RoomController {
     return this.roomsService.isUserInRoom(indexRoom, indexPlayer);
   }
 
-  public updateRoom(client) {
+  public deleteRoom(indexRoom: string) {
+    this.roomsService.deleteRoom(indexRoom);
+    console.log(Messages.DELETED_ROOM + ': ' + indexRoom);
+  }
+
+  public updateRoomResponse(client) {
     client.send(getWsResponse(
       WsOperations.UPDATE_ROOM,
-      this.roomsService.getRoomsWithOnePlayer(),
+      this.roomsService.getRoomsWithOnePlayer().map((r) => {
+        return { ...r, roomId: r.id}
+      }),
     ));
   }
 }

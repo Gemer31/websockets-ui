@@ -23,7 +23,11 @@ export enum Messages {
   USER_ALREADY_REGISTERED = 'User is already registered',
   INVALID_USER_DATA = 'Invalid user data',
   LOG_IN_USER = 'Log in user',
-  LOG_OUT_USER = 'Log out user'
+  LOG_OUT_USER = 'Log out user',
+  INVALID_CREATE_GAME_PARAMS = 'Invalid create games params',
+  DELETED_ROOM = 'Deleted room',
+  FINISHED_GAME_ID = 'Finished game id',
+  STARTED_GAME_ID = 'Started game id',
 }
 
 export enum ShipTypes {

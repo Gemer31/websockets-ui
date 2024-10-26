@@ -1,7 +1,7 @@
 import { GameService } from '../services/game.service';
 import { ICoordinate, IShip } from '../models';
 import { getWsResponse } from '../helpers';
-import { AttackStatus, WsOperations } from '../types';
+import { AttackStatus, Messages, WsOperations } from '../types';
 import { WebSocket } from 'ws';
 
 export class GameController {
@@ -9,31 +9,40 @@ export class GameController {
   }
 
   public createGame(roomId: string, playersIds: string[]): string {
-    return this.gameService.createGame(roomId, playersIds);
+    if (!roomId?.length && !playersIds.length) {
+      throw new Error(Messages.INVALID_CREATE_GAME_PARAMS);
+    }
+
+    const gameId: string = this.gameService.createGame(roomId, playersIds);
+
+    console.log(Messages.STARTED_GAME_ID + ': ' + gameId);
+
+    return gameId;
   }
 
-  public addShips(idGame: string, indexPlayer: string, ships: IShip[]): void {
-    return this.gameService.addShips(idGame, indexPlayer, ships);
+  public addShips(gameId: string, indexPlayer: string, ships: IShip[]): void {
+    this.gameService.addShips(gameId, indexPlayer, ships);
+    console.log(Messages.STARTED_GAME_ID + ': ' + gameId);
   }
 
-  public gameIsReady(idGame: string): boolean {
-    return this.gameService.gameIsReady(idGame);
+  public gameIsReady(gameId: string): boolean {
+    return this.gameService.gameIsReady(gameId);
   }
 
-  public getRoomIdByGameId(idGame: string): string {
-    return this.gameService.getRoomIdByGameId(idGame);
+  public getRoomIdByGameId(gameId: string): string {
+    return this.gameService.getRoomIdByGameId(gameId);
   }
 
-  public getWinner(idGame: string): string {
-    return this.gameService.getWinner(idGame);
+  public getWinner(gameId: string): string {
+    return this.gameService.getWinner(gameId);
   }
 
-  public createGameResponse(client: WebSocket, idGame: string, idPlayer: string) {
-    client.send(getWsResponse(WsOperations.CREATE_GAME, {idGame, idPlayer}));
+  public createGameResponse(client: WebSocket, gameId: string, idPlayer: string) {
+    client.send(getWsResponse(WsOperations.CREATE_GAME, {gameId, idPlayer}));
   }
 
-  public attack(idGame: string, indexPlayer: string, attackCoordinates: ICoordinate) {
-    return this.gameService.attack(idGame, indexPlayer, attackCoordinates);
+  public attack(gameId: string, indexPlayer: string, attackCoordinates: ICoordinate) {
+    return this.gameService.attack(gameId, indexPlayer, attackCoordinates);
   }
 
   public startGameResponse(client: WebSocket, currentPlayerIndex: string, ships: IShip[]) {
@@ -44,6 +53,11 @@ export class GameController {
         currentPlayerIndex, /* id of the player in the current game session, who have sent his ships */
       },
     ));
+  }
+
+  public finishGame(gameId: string): void {
+    this.gameService.finishGame(gameId);
+    console.log(Messages.FINISHED_GAME_ID + ': ' + gameId);
   }
 
   public finishResponse(client: WebSocket, winPlayer: string) {

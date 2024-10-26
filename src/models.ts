@@ -1,5 +1,9 @@
 import { ShipTypes } from './types';
 
+export interface IId {
+  id: string;
+}
+
 export interface IIndex {
   index: string;
 }
@@ -36,14 +40,12 @@ export interface IUserWithIndex extends IIndex, IName {
 export interface IUserWithPassword extends IName, IPassword {
 }
 
-export interface IRoom {
-  roomId: string;
+export interface IRoom extends IId {
   roomUsers: IUserWithIndex[];
   roomClients: any[];
 }
 
-export interface IGame {
-  idGame: string;
+export interface IGame extends IId {
   roomId: string;
   players: Map<string, IGamePlayer>;
 }

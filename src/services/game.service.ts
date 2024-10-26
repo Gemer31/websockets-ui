@@ -1,29 +1,33 @@
 import { ICoordinate, IGame, IShip } from '../models';
-import { AttackStatus, ShipTypes } from '../types';
+import { AttackStatus } from '../types';
 import crypto from 'crypto';
 
 export class GameService {
-  private games: IGame[] = [];
+  private games: Map<string, IGame> = new Map();
 
-  private getGame(idGame: string) {
-    return this.games.find((g) => g.idGame === idGame);
+  private getGame(gameId: string) {
+    return this.games.get(gameId);
   }
 
   public createGame(roomId: string, playersId: string[]): string {
-    const idGame = crypto.randomUUID();
-    this.games.push({
-      idGame,
+    const gameId = crypto.randomUUID();
+    this.games.set(gameId, {
+      id: gameId,
       roomId,
       players: new Map()
         .set(playersId[0], {ships: [], shoots: []})
         .set(playersId[1], {ships: [], shoots: []}),
     });
 
-    return idGame;
+    return gameId;
   }
 
-  public addShips(idGame: string, indexPlayer: string, ships: IShip[]): void {
-    this.getGame(idGame).players.get(indexPlayer).ships = ships
+  public finishGame(gameId: string): void {
+    this.games.delete(gameId);
+  }
+
+  public addShips(gameId: string, indexPlayer: string, ships: IShip[]): void {
+    this.getGame(gameId).players.get(indexPlayer).ships = ships
       ?.map((s: IShip) => ({
         ...s,
         damageCounter: 0,
@@ -31,22 +35,22 @@ export class GameService {
       }));
   }
 
-  public gameIsReady(idGame: string): boolean {
-    const game = this.getGame(idGame);
+  public gameIsReady(gameId: string): boolean {
+    const game = this.getGame(gameId);
     return [...game.players.values()].every((p) => !!p?.ships?.length);
   }
 
-  public getRoomIdByGameId(idGame: string) {
-    return this.getGame(idGame).roomId;
+  public getRoomIdByGameId(gameId: string) {
+    return this.getGame(gameId).roomId;
   }
 
-  public getPlayerShips(idGame: string, indexPlayer: string): IShip[] {
-    return this.getGame(idGame).players.get(indexPlayer).ships;
+  public getPlayerShips(gameId: string, indexPlayer: string): IShip[] {
+    return this.getGame(gameId).players.get(indexPlayer).ships;
   }
 
-  public attack(idGame: string, indexPlayer: string, attackCoordinate: ICoordinate) {
-    const game = this.getGame(idGame);
-    const enemyIndexPlayer: string = this.getEnemyUserIndex(idGame, indexPlayer);
+  public attack(gameId: string, indexPlayer: string, attackCoordinate: ICoordinate) {
+    const game = this.getGame(gameId);
+    const enemyIndexPlayer: string = this.getEnemyUserIndex(gameId, indexPlayer);
     const enemyShips: IShip[] = game.players.get(enemyIndexPlayer).ships;
     let attackStatus: AttackStatus = AttackStatus.MISS;
 
@@ -77,8 +81,8 @@ export class GameService {
     return attackStatus;
   }
 
-  public getWinner(idGame: string): string {
-    const game = this.getGame(idGame);
+  public getWinner(gameId: string): string {
+    const game = this.getGame(gameId);
     let looser: string;
 
     game.players.forEach((player, playerId) => {
@@ -96,11 +100,11 @@ export class GameService {
       }
     });
 
-    return looser && this.getEnemyUserIndex(idGame, looser);
+    return looser && this.getEnemyUserIndex(gameId, looser);
   }
 
-  private getEnemyUserIndex(idGame: string, indexPlayer: string): string {
-    return [...this.getGame(idGame).players.keys()].filter((p) => p !== indexPlayer)[0];
+  private getEnemyUserIndex(gameId: string, indexPlayer: string): string {
+    return [...this.getGame(gameId).players.keys()].filter((p) => p !== indexPlayer)[0];
   }
 
   private isShipDamaged(ship: IShip, attackCoordinates: ICoordinate): boolean {
