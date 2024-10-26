@@ -1,4 +1,4 @@
-export enum WsMessageTypes {
+export enum WsOperations {
   REGISTRATION = 'reg',
   UPDATE_WINNERS = 'update_winners',
   CREATE_ROOM = 'create_room',
@@ -20,7 +20,10 @@ export enum AttackStatus {
 }
 
 export enum Messages {
-  USER_ALREADY_EXISTS = 'User is already exists'
+  USER_ALREADY_REGISTERED = 'User is already registered',
+  INVALID_USER_DATA = 'Invalid user data',
+  LOG_IN_USER = 'Log in user',
+  LOG_OUT_USER = 'Log out user'
 }
 
 export enum ShipTypes {

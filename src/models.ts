@@ -17,10 +17,14 @@ export interface IPassword {
 }
 
 export interface IIndexRoom {
-  indexRoom: string | number;
+  indexRoom: string;
 }
 
-export interface IUser extends IName, IWins, IIndex, IPassword {
+export interface IRegistered {
+  registered?: boolean;
+}
+
+export interface IUser extends IName, IWins, IIndex, IPassword, IRegistered {
 }
 
 export interface IUserWithWins extends IName, IWins {
@@ -35,16 +39,22 @@ export interface IUserWithPassword extends IName, IPassword {
 export interface IRoom {
   roomId: string;
   roomUsers: IUserWithIndex[];
+  roomClients: any[];
 }
 
 export interface IGame {
   idGame: string;
   roomId: string;
-  playersId: string[];
-  playersShips?: Map<string, IShip[]>;
+  players: Map<string, IGamePlayer>;
+}
+
+export interface IGamePlayer {
+  ships?: IShip[];
+  shoots?: ICoordinate[];
 }
 
 export interface IShip {
+  coordinates?: ICoordinate[];
   position: {
     x: number;
     y: number;
@@ -61,12 +71,12 @@ export interface AddShipsData {
   indexPlayer: string; /* id of the player in the current game session */
 }
 
-export interface AttackCoordinates {
+export interface ICoordinate {
   x?: number;
   y?: number;
 }
 
-export interface AttackData extends AttackCoordinates {
+export interface AttackData extends ICoordinate {
   gameId: string;
   indexPlayer: string; /* id of the player in the current game session */
 }
