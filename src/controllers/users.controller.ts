@@ -17,6 +17,10 @@ export class UsersController {
     });
   }
 
+  public addUserWin(indexUser: string): void {
+    return this.usersService.addUserWin(indexUser);
+  }
+
   public getUserByClient(client: WebSocket): IUserWithIndex {
     return this.usersService.getRegisteredUser(client);
   }

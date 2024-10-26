@@ -26,6 +26,7 @@ export class GameService {
     this.getGame(idGame).players.get(indexPlayer).ships = ships
       ?.map((s: IShip) => ({
         ...s,
+        damageCounter: 0,
         coordinates: this.getShipCoordinates(s),
       }));
   }
@@ -54,7 +55,7 @@ export class GameService {
         const damaged = this.isShipDamaged(ship, attackCoordinate);
 
         if (damaged) {
-          ship.damageCounter = (ship.damageCounter || 0) + 1;
+          ship.damageCounter += 1;
 
           if (ship.damageCounter === ship.length) {
             attackStatus = AttackStatus.KILLED;
@@ -116,35 +117,18 @@ export class GameService {
     return damaged;
   }
 
-  private getShipCoordinates({type, position, direction}: IShip): ICoordinate[] {
+  private getShipCoordinates({type, position, direction, length}: IShip): ICoordinate[] {
     const {x, y} = position;
     const coordinates = [];
-    let loops: number;
 
-    switch (type) {
-      case ShipTypes.HUGE: {
-        loops = 4;
-        break;
-      }
-      case ShipTypes.LARGE: {
-        loops = 3;
-        break;
-      }
-      case ShipTypes.MEDIUM: {
-        loops = 2;
-        break;
-      }
-      default: {
-        loops = 1;
-      }
-    }
-
-    new Array(4).fill(null).forEach((_, index) => {
-      coordinates.push(direction
-        ? {x, y: y + index}
-        : {x: x + index, y},
-      );
-    });
+    new Array(length)
+      .fill(null)
+      .forEach((_, index) => {
+        coordinates.push(direction
+          ? {x, y: y + index}
+          : {x: x + index, y},
+        );
+      });
 
     return coordinates;
   }

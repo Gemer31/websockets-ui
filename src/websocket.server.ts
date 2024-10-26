@@ -1,5 +1,14 @@
 import { WebSocketServer } from 'ws';
-import { AddShipsData, ICoordinate, AttackData, IIndexRoom, IShip, IUserWithPassword, Message } from './models';
+import {
+  AddShipsData,
+  ICoordinate,
+  AttackData,
+  IIndexRoom,
+  IShip,
+  IUserWithPassword,
+  Message,
+  IUserWithIndex,
+} from './models';
 import { AttackStatus, WsOperations } from './types';
 import { UsersController } from './controllers/users.controller';
 import { UsersService } from './services/users.service';
@@ -41,6 +50,12 @@ export function runWebsocket() {
           }
           case WsOperations.ADD_USER_TO_ROOM: {
             const {indexRoom}: IIndexRoom = JSON.parse(requestData.data as string);
+            const user: IUserWithIndex = usersController.getUserByClient(wsClient);
+
+            if (roomController.isUserInRoom(indexRoom, user.index)) {
+              break;
+            }
+
             roomController.addUserToRoom(
               indexRoom,
               usersController.getUserByClient(wsClient),
@@ -109,9 +124,11 @@ export function runWebsocket() {
             const winner = gameController.getWinner(gameId);
             if (winner) {
               roomClients.forEach((c) => gameController.finishResponse(c, winner));
+              usersController.addUserWin(winner);
             }
 
             usersController.getAllClients().forEach((c) => roomController.updateRoom(c));
+            usersController.updateWinnersResponse();
 
             break;
           }

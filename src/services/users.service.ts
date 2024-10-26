@@ -37,6 +37,10 @@ export class UsersService {
     return { name: user.name, index: user.index };
   }
 
+  public addUserWin(indexUser: string): void {
+    this.getUser(indexUser).wins += 1;
+  }
+
   public getAllClients(): any[] {
     return [...this.registrations.keys()];
   }
@@ -52,7 +56,7 @@ export class UsersService {
     return newUser;
   }
 
-  public getUser(index: string): IUserWithIndex {
+  public getUser(index: string): IUser {
     return this.users.find((u) => u.index === index);
   }
 

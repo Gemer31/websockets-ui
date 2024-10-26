@@ -33,6 +33,10 @@ export class RoomsService {
     return this.getRoom(indexRoom).roomUsers.filter((u) => u.index !== currentIndexPlayer)[0].index;
   }
 
+  public isUserInRoom(indexRoom: string, indexUser: string): boolean {
+    return this.getRoom(indexRoom).roomUsers.some((u) => u.index === indexUser);
+  }
+
   private getRoom(indexRoom: string) {
     return this.rooms.find((room) => room.roomId === indexRoom);
   }

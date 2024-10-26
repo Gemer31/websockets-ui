@@ -28,6 +28,10 @@ export class RoomController {
     this.roomsService.addClientToRoom(indexRoom, client);
   }
 
+  public isUserInRoom(indexRoom: string, indexPlayer: string) {
+    return this.roomsService.isUserInRoom(indexRoom, indexPlayer);
+  }
+
   public updateRoom(client) {
     client.send(getWsResponse(
       WsOperations.UPDATE_ROOM,

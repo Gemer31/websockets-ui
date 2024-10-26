@@ -24,7 +24,7 @@ export class GameController {
     return this.gameService.getRoomIdByGameId(idGame);
   }
 
-  public getWinner(idGame: string) {
+  public getWinner(idGame: string): string {
     return this.gameService.getWinner(idGame);
   }
 
