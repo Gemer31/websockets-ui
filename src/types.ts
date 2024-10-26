@@ -1,4 +1,4 @@
-export enum MessageTypes {
+export enum WsMessageTypes {
   REGISTRATION = 'reg',
   UPDATE_WINNERS = 'update_winners',
   CREATE_ROOM = 'create_room',
@@ -11,4 +11,21 @@ export enum MessageTypes {
   RANDOM_ATTACK = 'randomAttack',
   TURN = 'turn',
   FINISH = 'finish',
+}
+
+export enum AttackStatus {
+  MISS = 'miss',
+  KILLED = 'killed',
+  SHOT = 'shot',
+}
+
+export enum Messages {
+  USER_ALREADY_EXISTS = 'User is already exists'
+}
+
+export enum ShipTypes {
+  SMALL = 'small',
+  MEDIUM = 'medium',
+  LARGE = 'large',
+  HUGE = 'huge',
 }

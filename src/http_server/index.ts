@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { IncomingMessage, createServer, ServerResponse } from 'http';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
 
 export const httpServer = createServer(function (req: IncomingMessage, res: ServerResponse) {
   const __dirname = path.resolve(path.dirname(''));
@@ -15,4 +15,3 @@ export const httpServer = createServer(function (req: IncomingMessage, res: Serv
     res.end(data);
   });
 });
-

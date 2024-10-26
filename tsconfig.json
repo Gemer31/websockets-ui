@@ -6,7 +6,9 @@
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "strictNullChecks": false
   },
   "include": ["src/**/*"]
 }
