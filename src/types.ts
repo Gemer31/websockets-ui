@@ -11,6 +11,8 @@ export enum WsOperations {
   RANDOM_ATTACK = 'randomAttack',
   TURN = 'turn',
   FINISH = 'finish',
+  SINGLE_PLAY = 'single_play',
+  DISCONNECT = 'disconnect',
 }
 
 export enum AttackStatus {

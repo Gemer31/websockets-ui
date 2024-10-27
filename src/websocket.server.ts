@@ -64,6 +64,9 @@ export class ServerWebsocket {
             this._attack(wsClient, operationData);
             break;
           }
+          case WsOperations.DISCONNECT: {
+            this._disconnect(wsClient);
+          }
           default: {
             throw new Error(`No ${type} websocket operation`);
           }
@@ -72,12 +75,18 @@ export class ServerWebsocket {
         console.error(e);
       }
     });
+
+    wsClient.on('close', () => this._disconnect(wsClient));
   }
 
   private _registration = (client: WebSocket, userData: IUserWithPassword): void => {
     this.usersController.login(client, userData);
     this.usersController.updateWinnersResponse();
     this.roomController.updateRoomResponse(client);
+  }
+
+  private _disconnect(client: WebSocket): void {
+    this.usersController.logout(client)
   }
 
   private _addUserToRoom = (client: WebSocket, { indexRoom: roomId }: IIndexRoom): void => {
