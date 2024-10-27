@@ -26,7 +26,19 @@ export function getAvailableAttackCoordinates(shootedCoordinates: ICoordinate[])
   return res;
 }
 
-export function getRandomItemFromArray<T>(arr: T[]): T {
+export function getRandomArrayItem<T>(arr: T[]): T {
   const randomIndex = Math.floor(Math.random() * arr.length);
   return arr[randomIndex];
+}
+
+export function isCoordinatesValid({ x, y }: ICoordinate): boolean {
+  return (typeof x === 'number') && (typeof y === 'number')
+}
+
+export function throwErrorIfInvalid(errorMessage: string, ...args): void {
+  const isInvalid: boolean = args.every((item) => !item);
+
+  if (isInvalid) {
+    throw new Error(errorMessage);
+  }
 }

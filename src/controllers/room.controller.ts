@@ -1,6 +1,6 @@
 import { Messages, WsOperations } from '../types';
 import { RoomsService } from '../services/rooms.service';
-import { getWsResponse } from '../helpers';
+import { throwErrorIfInvalid, getWsResponse } from '../helpers';
 import { IUserWithIndex } from '../models';
 import { WebSocket } from 'ws';
 
@@ -9,32 +9,46 @@ export class RoomController {
   }
 
   public createRoom(client: WebSocket, user: IUserWithIndex): string {
+    throwErrorIfInvalid(Messages.INVALID_CREATE_ROOM_DATA, client, user);
+
     return this.roomsService.createRoom(client, user);
   }
 
   public addUserToRoom(indexRoom: string, user: IUserWithIndex, client: WebSocket) {
+    throwErrorIfInvalid(Messages.INVALID_ADD_USER_TO_ROOM_DATA, indexRoom, client, user);
+
     this.roomsService.addUserToRoom(indexRoom, user, client);
   }
 
-  public getRoomClients(indexRoom: string): any[] {
-    return this.roomsService.getRoomClients(indexRoom);
+  public getRoomClients(roomId: string): any[] {
+    throwErrorIfInvalid(Messages.INVALID_GET_ROOM_CLIENTS_DATA, roomId);
+
+    return this.roomsService.getRoomClients(roomId);
   }
 
-  public getEnemyPlayer(indexRoom: string, indexPlayer: string) {
-    return this.roomsService.getEnemyPlayer(indexRoom, indexPlayer);
+  public getEnemyPlayerId(roomId: string, playerId: string) {
+    throwErrorIfInvalid(Messages.INVALID_GET_ENEMY_PLAYER_ID, roomId, playerId);
+
+    return this.roomsService.getEnemyPlayerId(roomId, playerId);
   }
 
-  public addClientToRoom(indexRoom: string, client: WebSocket): void {
-    this.roomsService.addClientToRoom(indexRoom, client);
+  public addClientToRoom(roomId: string, client: WebSocket): void {
+    throwErrorIfInvalid(Messages.INVALID_ADD_CLIENT_TO_ROOM_DATA, roomId, client);
+
+    this.roomsService.addClientToRoom(roomId, client);
   }
 
-  public isUserInRoom(indexRoom: string, indexPlayer: string) {
-    return this.roomsService.isUserInRoom(indexRoom, indexPlayer);
+  public isUserInRoom(roomId: string, playerId: string) {
+    throwErrorIfInvalid(Messages.CHECK_USER_IN_ROOM_FAILED, roomId, playerId);
+
+    return this.roomsService.isUserInRoom(roomId, playerId);
   }
 
-  public deleteRoom(indexRoom: string) {
-    this.roomsService.deleteRoom(indexRoom);
-    console.log(Messages.DELETED_ROOM + ': ' + indexRoom);
+  public deleteRoom(roomId: string) {
+    throwErrorIfInvalid(Messages.DELETE_ROOM_FAILED, roomId);
+
+    this.roomsService.deleteRoom(roomId);
+    console.log(Messages.DELETED_ROOM + ': ' + roomId);
   }
 
   public updateRoomResponse(client) {

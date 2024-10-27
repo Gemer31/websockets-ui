@@ -1,32 +1,31 @@
 import { UsersService } from '../services/users.service';
 import { IUserWithIndex, IUserWithPassword } from '../models';
 import { Messages, WsOperations } from '../types';
-import { getWsResponse } from '../helpers';
+import { getWsResponse, throwErrorIfInvalid } from '../helpers';
 import { WebSocket } from 'ws';
 
 export class UsersController {
   constructor(private usersService: UsersService) {
   }
 
-  public updateWinnersResponse(): void {
-    this.usersService.getAllClients().forEach((c) => {
-      c.send(getWsResponse(
-        WsOperations.UPDATE_WINNERS,
-        this.usersService.getWinners(),
-      ));
-    });
-  }
+  public addUserWin(userId: string): void {
+    throwErrorIfInvalid(Messages.ADD_USER_WIN_FAILED, userId);
 
-  public addUserWin(indexUser: string): void {
-    return this.usersService.addUserWin(indexUser);
+    return this.usersService.addUserWin(userId);
   }
 
   public getUserByClient(client: WebSocket): IUserWithIndex {
+    throwErrorIfInvalid(Messages.GET_USER_BY_CLIENT_FAILED, client);
+
     return this.usersService.getRegisteredUser(client);
   }
 
   public getAllClients(): any[] {
-    return this.usersService.getAllClients();
+    const clients: WebSocket[] = this.usersService.getAllClients();
+
+    throwErrorIfInvalid(Messages.GET_ALL_CLIENTS_FAILED, clients);
+
+    return clients;
   }
 
   public login(client: WebSocket, userData: IUserWithPassword): void {
@@ -52,5 +51,14 @@ export class UsersController {
   public logout(client: WebSocket): void {
     const user = this.usersService.logout(client);
     console.log(`${Messages.LOG_IN_USER}: ${user.name}`);
+  }
+
+  public updateWinnersResponse(): void {
+    this.usersService.getAllClients().forEach((c) => {
+      c.send(getWsResponse(
+        WsOperations.UPDATE_WINNERS,
+        this.usersService.getWinners(),
+      ));
+    });
   }
 }

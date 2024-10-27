@@ -12,36 +12,42 @@ export class RoomsService {
   }
 
   public addUserToRoom(roomId: string, user: IUserWithIndex, client: WebSocket) {
-    const room = this.getRoom(roomId);
+    const room: IRoom = this.rooms.get(roomId);
     room.roomUsers.push(user);
     room.roomClients.push(client);
   }
 
   public getRoomClients(roomId: string): any[] {
-    return this.getRoom(roomId).roomClients;
+    return this.rooms.get(roomId).roomClients;
   }
 
   public addClientToRoom(roomId: string, client: WebSocket): void {
-    this.getRoom(roomId).roomClients.push(client);
+    this.rooms
+      .get(roomId)
+      .roomClients
+      .push(client);
   }
 
-  public getRoomsWithOnePlayer() {
+  public getRoomsWithOnePlayer(): IRoom[] {
     return [...this.rooms.values()].filter(room => room.roomUsers.length === 1);
   }
 
-  public getEnemyPlayer(roomId: string, currentIndexPlayer: string): string {
-    return this.getRoom(roomId).roomUsers.filter((u) => u.index !== currentIndexPlayer)[0].index;
+  public getEnemyPlayerId(roomId: string, currentIndexPlayer: string): string {
+    return this.rooms
+      .get(roomId)
+      .roomUsers
+      .filter((u) => u.index !== currentIndexPlayer)
+      ?.[0].index;
   }
 
   public isUserInRoom(roomId: string, indexUser: string): boolean {
-    return this.getRoom(roomId).roomUsers.some((u) => u.index === indexUser);
+    return this.rooms
+      .get(roomId)
+      .roomUsers
+      .some((u) => (u.index === indexUser));
   }
 
-  public deleteRoom(roomId: string) {
+  public deleteRoom(roomId: string): void {
     this.rooms.delete(roomId);
-  }
-
-  private getRoom(roomId: string) {
-    return this.rooms.get(roomId);
   }
 }

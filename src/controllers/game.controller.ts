@@ -9,32 +9,63 @@ export class GameController {
   }
 
   public createGame(roomId: string, playersIds: string[]): string {
-    if (!roomId?.length && !playersIds.length) {
+    if (!roomId?.length || !playersIds.length) {
       throw new Error(Messages.INVALID_CREATE_GAME_PARAMS);
     }
 
     const gameId: string = this.gameService.createGame(roomId, playersIds);
-
     console.log(Messages.STARTED_GAME_ID + ': ' + gameId);
 
     return gameId;
   }
 
-  public addShips(gameId: string, indexPlayer: string, ships: IShip[]): void {
-    this.gameService.addShips(gameId, indexPlayer, ships);
+  public addShips(gameId: string, playerId: string, ships: IShip[]): void {
+    if (!gameId || !playerId || !ships?.length) {
+      throw new Error(Messages.INVALID_ADD_SHIPS_DATA);
+    }
+
+    this.gameService.addShips(gameId, playerId, ships);
     console.log(Messages.STARTED_GAME_ID + ': ' + gameId);
   }
 
   public gameIsReady(gameId: string): boolean {
+    if (!gameId) {
+      throw new Error(Messages.CHECK_GAME_READY_FAILED);
+    }
+
     return this.gameService.gameIsReady(gameId);
   }
 
   public getRoomIdByGameId(gameId: string): string {
+    if (!gameId) {
+      throw new Error(Messages.GET_ROOM_ID_FAILED);
+    }
+
     return this.gameService.getRoomIdByGameId(gameId);
   }
 
   public getWinner(gameId: string): string {
+    if (!gameId) {
+      throw new Error(Messages.GET_WINNER_FAILED);
+    }
+
     return this.gameService.getWinner(gameId);
+  }
+
+  public attack(gameId: string, playerId: string, attackCoordinates: ICoordinate) {
+    if (!gameId || !playerId || !attackCoordinates) {
+      throw new Error(Messages.INVALID_ATTACK_DATA);
+    }
+
+    return this.gameService.attack(gameId, playerId, attackCoordinates);
+  }
+
+  public getShootedCoordinates(gameId: string, playerId: string): ICoordinate[] {
+    if (!gameId || !playerId) {
+      throw new Error(Messages.INVALID_GET_SHOOTED_COORDINATES);
+    }
+
+    return this.gameService.getShootedCoordinates(gameId, playerId);
   }
 
   public createGameResponse(client: WebSocket, idGame: string, idPlayer: string) {
@@ -42,14 +73,6 @@ export class GameController {
       WsOperations.CREATE_GAME,
       {idGame, idPlayer},
     ));
-  }
-
-  public attack(gameId: string, playerId: string, attackCoordinates: ICoordinate) {
-    return this.gameService.attack(gameId, playerId, attackCoordinates);
-  }
-
-  public getShootedCoordinates(gameId: string, playerId: string): ICoordinate[] {
-    return this.gameService.getShootedCoordinates(gameId, playerId);
   }
 
   public startGameResponse(client: WebSocket, currentPlayerIndex: string, ships: IShip[]) {

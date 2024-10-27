@@ -4,7 +4,7 @@ import { WebSocket } from 'ws';
 
 export class UsersService {
   private users: IUser[] = [];
-  private registrations: Map<any, string> = new Map<any, string>();
+  private registrations: Map<any, string> = new Map();
 
   public login(client: WebSocket, userData: IUserWithPassword): IUserWithIndex {
     let user: IUser = this.users.find((u) => u.name === userData.name && u.password === userData.password);
@@ -17,10 +17,10 @@ export class UsersService {
     return { name: user.name, index: user.index};
   }
 
-  public logout(client: WebSocket) {
+  public logout(client: WebSocket): IUserWithIndex {
     const user: IUserWithIndex = this.getUser(this.registrations.get(client))
     this.registrations.delete(client);
-    return user
+    return user;
   }
 
   public isAlreadyRegistered(user: IUserWithPassword): boolean {
@@ -41,7 +41,7 @@ export class UsersService {
     this.getUser(indexUser).wins += 1;
   }
 
-  public getAllClients(): any[] {
+  public getAllClients(): WebSocket[] {
     return [...this.registrations.keys()];
   }
 

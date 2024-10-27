@@ -1,4 +1,4 @@
-import { ICoordinate, IGame, IShip } from '../models';
+import { ICoordinate, IGame, IGamePlayer, IShip } from '../models';
 import { AttackStatus } from '../types';
 import crypto from 'crypto';
 
@@ -23,17 +23,16 @@ export class GameService {
   }
 
   public addShips(gameId: string, indexPlayer: string, ships: IShip[]): void {
-    this.games.get(gameId).players.get(indexPlayer).ships = ships
-      ?.map((s: IShip) => ({
-        ...s,
-        damageCounter: 0,
-        coordinates: this.getShipCoordinates(s),
-      }));
+    this.games.get(gameId).players.get(indexPlayer).ships = ships?.map((s: IShip) => ({
+      ...s,
+      damageCounter: 0,
+      coordinates: this.getShipCoordinates(s),
+    }));
   }
 
   public gameIsReady(gameId: string): boolean {
-    const game = this.games.get(gameId);
-    return [...game.players.values()].every((p) => !!p?.ships?.length);
+    const players: IGamePlayer[] = [...this.games.get(gameId).players.values()];
+    return players.every((p) => !!p?.ships?.length);
   }
 
   public getRoomIdByGameId(gameId: string) {
@@ -41,12 +40,19 @@ export class GameService {
   }
 
   public getPlayerShips(gameId: string, indexPlayer: string): IShip[] {
-    return this.games.get(gameId).players.get(indexPlayer).ships;
+    return this.games
+      .get(gameId)
+      .players
+      .get(indexPlayer)
+      .ships;
   }
 
   public getShootedCoordinates(gameId: string, playerId: string): ICoordinate[] {
-    const game = this.games.get(gameId);
-    return game.players.get(playerId).shoots;
+    return this.games
+      .get(gameId)
+      .players
+      .get(playerId)
+      .shoots;
   }
 
   public attack(gameId: string, playerId: string, attackCoordinate: ICoordinate) {
@@ -55,27 +61,18 @@ export class GameService {
     const enemyShips: IShip[] = game.players.get(enemyIndexPlayer).ships;
     let attackStatus: AttackStatus = AttackStatus.MISS;
 
-    if (attackCoordinate) {
-      enemyShips.every((ship) => {
-        const damaged = this.isShipDamaged(ship, attackCoordinate);
+    enemyShips.every((ship) => {
+      if (this.isShipDamaged(ship, attackCoordinate)) {
+        ship.damageCounter += 1;
+        attackStatus = ship.damageCounter === ship.length
+          ? AttackStatus.KILLED
+          : AttackStatus.SHOT;
 
-        if (damaged) {
-          ship.damageCounter += 1;
+        return false;
+      }
 
-          if (ship.damageCounter === ship.length) {
-            attackStatus = AttackStatus.KILLED;
-          } else {
-            attackStatus = AttackStatus.SHOT;
-          }
-
-          return false;
-        }
-
-        return true;
-      });
-    } else {
-      // random
-    }
+      return true;
+    });
 
     game.players.get(playerId).shoots.push(attackCoordinate);
 
@@ -122,7 +119,7 @@ export class GameService {
     return damaged;
   }
 
-  private getShipCoordinates({type, position, direction, length}: IShip): ICoordinate[] {
+  private getShipCoordinates({position, direction, length}: IShip): ICoordinate[] {
     const {x, y} = position;
     const coordinates = [];
 
