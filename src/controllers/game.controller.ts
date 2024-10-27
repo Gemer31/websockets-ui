@@ -44,8 +44,12 @@ export class GameController {
     ));
   }
 
-  public attack(gameId: string, indexPlayer: string, attackCoordinates: ICoordinate) {
-    return this.gameService.attack(gameId, indexPlayer, attackCoordinates);
+  public attack(gameId: string, playerId: string, attackCoordinates: ICoordinate) {
+    return this.gameService.attack(gameId, playerId, attackCoordinates);
+  }
+
+  public getShootedCoordinates(gameId: string, playerId: string): ICoordinate[] {
+    return this.gameService.getShootedCoordinates(gameId, playerId);
   }
 
   public startGameResponse(client: WebSocket, currentPlayerIndex: string, ships: IShip[]) {

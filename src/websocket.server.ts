@@ -16,6 +16,7 @@ import { RoomsService } from './services/rooms.service';
 import { GameService } from './services/game.service';
 import { RoomController } from './controllers/room.controller';
 import { GameController } from './controllers/game.controller';
+import { getAvailableAttackCoordinates, getRandomItemFromArray } from './helpers';
 
 export class ServerWebsocket {
   constructor(
@@ -123,9 +124,16 @@ export class ServerWebsocket {
   }
 
   private _attack = (client: WebSocket, {gameId, indexPlayer, y, x}: AttackData): void => {
-    const attackCoordinates: ICoordinate = (typeof x === 'number') && (typeof y === 'number')
-      ? {x: x, y: y}
-      : null;
+    let attackCoordinates: ICoordinate;
+
+    if ((typeof x === 'number') && (typeof y === 'number')) {
+      attackCoordinates = {x: x, y: y};
+    } else {
+      const shootedCoordinates: ICoordinate[] = this.gameController.getShootedCoordinates(gameId, indexPlayer);
+      const availableCoordinates: ICoordinate[] = getAvailableAttackCoordinates(shootedCoordinates);
+      attackCoordinates = getRandomItemFromArray(availableCoordinates);
+    }
+
     const status: AttackStatus = this.gameController.attack(gameId, indexPlayer, attackCoordinates);
     const roomId: string = this.gameController.getRoomIdByGameId(gameId);
     const roomClients: any = this.roomController.getRoomClients(roomId);

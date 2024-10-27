@@ -29,13 +29,15 @@ export class UsersController {
     return this.usersService.getAllClients();
   }
 
-  public login(client: WebSocket, userData: IUserWithPassword) {
+  public login(client: WebSocket, userData: IUserWithPassword): void {
     if (!userData.name || !userData.password) {
       this.registrationErrorResponse(client, Messages.INVALID_USER_DATA);
+      return;
     }
 
     if (this.usersService.isAlreadyRegistered(userData)) {
       this.registrationErrorResponse(client, Messages.USER_ALREADY_REGISTERED);
+      return;
     }
 
     const user: IUserWithIndex = this.usersService.login(client, userData);

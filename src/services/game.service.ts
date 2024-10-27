@@ -5,10 +5,6 @@ import crypto from 'crypto';
 export class GameService {
   private games: Map<string, IGame> = new Map();
 
-  private getGame(gameId: string) {
-    return this.games.get(gameId);
-  }
-
   public createGame(roomId: string, playersId: string[]): string {
     const gameId = crypto.randomUUID();
     this.games.set(gameId, {
@@ -27,7 +23,7 @@ export class GameService {
   }
 
   public addShips(gameId: string, indexPlayer: string, ships: IShip[]): void {
-    this.getGame(gameId).players.get(indexPlayer).ships = ships
+    this.games.get(gameId).players.get(indexPlayer).ships = ships
       ?.map((s: IShip) => ({
         ...s,
         damageCounter: 0,
@@ -36,21 +32,26 @@ export class GameService {
   }
 
   public gameIsReady(gameId: string): boolean {
-    const game = this.getGame(gameId);
+    const game = this.games.get(gameId);
     return [...game.players.values()].every((p) => !!p?.ships?.length);
   }
 
   public getRoomIdByGameId(gameId: string) {
-    return this.getGame(gameId).roomId;
+    return this.games.get(gameId).roomId;
   }
 
   public getPlayerShips(gameId: string, indexPlayer: string): IShip[] {
-    return this.getGame(gameId).players.get(indexPlayer).ships;
+    return this.games.get(gameId).players.get(indexPlayer).ships;
   }
 
-  public attack(gameId: string, indexPlayer: string, attackCoordinate: ICoordinate) {
-    const game = this.getGame(gameId);
-    const enemyIndexPlayer: string = this.getEnemyUserIndex(gameId, indexPlayer);
+  public getShootedCoordinates(gameId: string, playerId: string): ICoordinate[] {
+    const game = this.games.get(gameId);
+    return game.players.get(playerId).shoots;
+  }
+
+  public attack(gameId: string, playerId: string, attackCoordinate: ICoordinate) {
+    const game = this.games.get(gameId);
+    const enemyIndexPlayer: string = this.getEnemyUserIndex(gameId, playerId);
     const enemyShips: IShip[] = game.players.get(enemyIndexPlayer).ships;
     let attackStatus: AttackStatus = AttackStatus.MISS;
 
@@ -76,13 +77,13 @@ export class GameService {
       // random
     }
 
-    game.players.get(indexPlayer).shoots.push(attackCoordinate);
+    game.players.get(playerId).shoots.push(attackCoordinate);
 
     return attackStatus;
   }
 
   public getWinner(gameId: string): string {
-    const game = this.getGame(gameId);
+    const game = this.games.get(gameId);
     let looser: string;
 
     game.players.forEach((player, playerId) => {
@@ -104,7 +105,7 @@ export class GameService {
   }
 
   private getEnemyUserIndex(gameId: string, indexPlayer: string): string {
-    return [...this.getGame(gameId).players.keys()].filter((p) => p !== indexPlayer)[0];
+    return [...this.games.get(gameId).players.keys()].filter((p) => p !== indexPlayer)[0];
   }
 
   private isShipDamaged(ship: IShip, attackCoordinates: ICoordinate): boolean {
