@@ -85,11 +85,11 @@ export class ServerWebsocket {
     wsClient.on('close', (code, data) => {
       const {deleteUserId} = JSON.parse(data.toString() as string);
 
+      this._disconnect(wsClient);
+
       if (deleteUserId) {
         this.usersController.deleteUser(deleteUserId);
       }
-
-      this._disconnect(wsClient);
     });
   };
 
@@ -172,7 +172,6 @@ export class ServerWebsocket {
     const winner = this.gameController.getWinner(gameId);
     if (winner) {
       roomClients.forEach((c) => this.gameController.finishResponse(c, winner));
-      this.usersController.addUserWin(winner);
       this.usersController.addUserWin(winner);
       this.gameController.finishGame(gameId);
       this.roomController.deleteRoom(roomId);

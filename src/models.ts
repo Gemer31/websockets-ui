@@ -28,11 +28,7 @@ export interface IRegistered {
   registered?: boolean;
 }
 
-export interface IBot {
-  isBot?: boolean;
-}
-
-export interface IUser extends IName, IWins, IIndex, IPassword, IRegistered, IBot {
+export interface IUser extends IName, IWins, IIndex, IPassword, IRegistered {
 }
 
 export interface IUserWithWins extends IName, IWins {
@@ -41,7 +37,7 @@ export interface IUserWithWins extends IName, IWins {
 export interface IUserWithIndex extends IIndex, IName {
 }
 
-export interface IUserWithPassword extends IName, IPassword, IBot {
+export interface IUserWithPassword extends IName, IPassword {
 }
 
 export interface IRoom extends IId {
@@ -61,10 +57,7 @@ export interface IGamePlayer {
 
 export interface IShip {
   coordinates?: ICoordinate[];
-  position: {
-    x: number;
-    y: number;
-  },
+  position: ICoordinate;
   direction: boolean;
   length: number;
   type: ShipTypes;
@@ -74,7 +67,16 @@ export interface IShip {
 export interface AddShipsData {
   gameId: string;
   ships: IShip[];
-  indexPlayer: string; /* id of the player in the current game session */
+  indexPlayer: string;
+}
+
+export interface ICreateGameData {
+  idGame: string;
+  idPlayer: string;
+}
+
+export interface ITurnData {
+  currentPlayer: string;
 }
 
 export interface ICoordinate {
@@ -84,18 +86,11 @@ export interface ICoordinate {
 
 export interface AttackData extends ICoordinate {
   gameId: string;
-  indexPlayer: string; /* id of the player in the current game session */
+  indexPlayer: string;
 }
 
 export interface Message<T = unknown> {
   id: number;
   type: string;
   data: T;
-}
-
-export interface RegistrationResponseData {
-  name: string;
-  index: number | string;
-  error: boolean;
-  errorText: string;
 }

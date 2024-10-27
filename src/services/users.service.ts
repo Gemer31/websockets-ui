@@ -45,13 +45,12 @@ export class UsersService {
     return [...this.registrations.keys()];
   }
 
-  public createUser({ name, password, isBot }: IUserWithPassword): IUser {
+  public createUser({ name, password }: IUserWithPassword): IUser {
     const newUser: IUser = {
       index: crypto.randomUUID(),
       wins: 0,
       name,
       password,
-      isBot,
     };
     this.users.push(newUser);
     return newUser;

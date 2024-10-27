@@ -54,7 +54,7 @@ export class UsersController {
 
   public logout(client: WebSocket): void {
     const user = this.usersService.logout(client);
-    console.log(`${Messages.LOG_IN_USER}: ${user.name}`);
+    console.log(`${Messages.LOG_OUT_USER}: ${user?.name}`);
   }
 
   public updateWinnersResponse(): void {

@@ -12,7 +12,6 @@ export enum WsOperations {
   TURN = 'turn',
   FINISH = 'finish',
   SINGLE_PLAY = 'single_play',
-  DELETE_USER = 'delete_user',
   DISCONNECT = 'disconnect',
 }
 
@@ -32,7 +31,6 @@ export enum Messages {
   INVALID_ADD_USER_TO_ROOM_DATA = 'Invalid add user to room data',
   INVALID_GET_ROOM_CLIENTS_DATA = 'Invalid get room clients data',
   INVALID_GET_ENEMY_PLAYER_ID = 'Invalid get enemy player id',
-  INVALID_ADD_CLIENT_TO_ROOM_DATA = 'Invalid add client to room data',
 
   CHECK_GAME_READY_FAILED = 'Check game ready is failed. No gameId',
   GET_ROOM_ID_FAILED = 'Get room id failed',
@@ -49,11 +47,4 @@ export enum Messages {
   DELETED_ROOM = 'Deleted room',
   FINISHED_GAME_ID = 'Finished game id',
   STARTED_GAME_ID = 'Started game id',
-}
-
-export enum ShipTypes {
-  SMALL = 'small',
-  MEDIUM = 'medium',
-  LARGE = 'large',
-  HUGE = 'huge',
 }
