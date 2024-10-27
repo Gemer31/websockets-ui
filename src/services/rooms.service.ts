@@ -21,13 +21,6 @@ export class RoomsService {
     return this.rooms.get(roomId).roomClients;
   }
 
-  public addClientToRoom(roomId: string, client: WebSocket): void {
-    this.rooms
-      .get(roomId)
-      .roomClients
-      .push(client);
-  }
-
   public getRoomsWithOnePlayer(): IRoom[] {
     return [...this.rooms.values()].filter(room => room.roomUsers.length === 1);
   }

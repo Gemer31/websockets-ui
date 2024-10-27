@@ -1,7 +1,7 @@
 import { Messages, WsOperations } from '../types';
 import { RoomsService } from '../services/rooms.service';
 import { throwErrorIfInvalid, getWsResponse } from '../helpers';
-import { IUserWithIndex } from '../models';
+import { IRoom, IUserWithIndex } from '../models';
 import { WebSocket } from 'ws';
 
 export class RoomController {
@@ -32,12 +32,6 @@ export class RoomController {
     return this.roomsService.getEnemyPlayerId(roomId, playerId);
   }
 
-  public addClientToRoom(roomId: string, client: WebSocket): void {
-    throwErrorIfInvalid(Messages.INVALID_ADD_CLIENT_TO_ROOM_DATA, roomId, client);
-
-    this.roomsService.addClientToRoom(roomId, client);
-  }
-
   public isUserInRoom(roomId: string, playerId: string) {
     throwErrorIfInvalid(Messages.CHECK_USER_IN_ROOM_FAILED, roomId, playerId);
 
@@ -54,8 +48,11 @@ export class RoomController {
   public updateRoomResponse(client) {
     client.send(getWsResponse(
       WsOperations.UPDATE_ROOM,
-      this.roomsService.getRoomsWithOnePlayer().map((r) => {
-        return { ...r, roomId: r.id}
+      this.roomsService.getRoomsWithOnePlayer().map((r: IRoom) => {
+        return {
+          roomId: r.id,
+          roomUsers: r.roomUsers,
+        };
       }),
     ));
   }

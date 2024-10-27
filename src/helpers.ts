@@ -1,12 +1,12 @@
 import { WsOperations } from './types';
 import { ICoordinate } from './models';
+import { BOARD_LENGTH } from './constants';
 
-const BOARD_LENGTH: number = 10;
 
-export function getWsResponse(type: WsOperations, data: unknown) {
+export function getWsResponse(type: WsOperations, data?: unknown) {
   return JSON.stringify({
     type,
-    data: JSON.stringify(data),
+    data: data ? JSON.stringify(data) : '',
     id: 0,
   });
 }

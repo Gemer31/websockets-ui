@@ -8,15 +8,16 @@ import {
   IUserWithIndex,
   IUserWithPassword,
   Message,
-} from './models';
-import { AttackStatus, WsOperations } from './types';
-import { UsersController } from './controllers/users.controller';
-import { UsersService } from './services/users.service';
-import { RoomsService } from './services/rooms.service';
-import { GameService } from './services/game.service';
-import { RoomController } from './controllers/room.controller';
-import { GameController } from './controllers/game.controller';
-import { getAvailableAttackCoordinates, getRandomArrayItem, isCoordinatesValid } from './helpers';
+} from '../models';
+import { AttackStatus, WsOperations } from '../types';
+import { UsersController } from '../controllers/users.controller';
+import { UsersService } from '../services/users.service';
+import { RoomsService } from '../services/rooms.service';
+import { GameService } from '../services/game.service';
+import { RoomController } from '../controllers/room.controller';
+import { GameController } from '../controllers/game.controller';
+import { getAvailableAttackCoordinates, getRandomArrayItem, isCoordinatesValid } from '../helpers';
+import { WebsocketBot } from './websocket.bot';
 
 export class ServerWebsocket {
   constructor(
@@ -31,14 +32,14 @@ export class ServerWebsocket {
 
     wsServer.on('connection', (c: WebSocket) => {
       console.log('Web Socket Server connected');
-      this._handleRequest(c)
+      this._handleRequest(c);
     });
     wsServer.on('close', (c) => this.usersController.logout(c));
   }
 
   private _handleRequest = (wsClient: WebSocket) => {
-    wsClient.on('message',  (msg: RawData) => {
-      const { type, data } = JSON.parse(msg.toString()) as Message;
+    wsClient.on('message', (msg: RawData) => {
+      const {type, data} = JSON.parse(msg.toString()) as Message;
       const operationData: any = data ? JSON.parse(data as string) : null;
 
       try {
@@ -64,8 +65,13 @@ export class ServerWebsocket {
             this._attack(wsClient, operationData);
             break;
           }
+          case WsOperations.SINGLE_PLAY: {
+            this._singlePlay(wsClient);
+            break;
+          }
           case WsOperations.DISCONNECT: {
             this._disconnect(wsClient);
+            break;
           }
           default: {
             throw new Error(`No ${type} websocket operation`);
@@ -76,20 +82,28 @@ export class ServerWebsocket {
       }
     });
 
-    wsClient.on('close', () => this._disconnect(wsClient));
-  }
+    wsClient.on('close', (code, data) => {
+      const {deleteUserId} = JSON.parse(data.toString() as string);
+
+      if (deleteUserId) {
+        this.usersController.deleteUser(deleteUserId);
+      }
+
+      this._disconnect(wsClient);
+    });
+  };
 
   private _registration = (client: WebSocket, userData: IUserWithPassword): void => {
     this.usersController.login(client, userData);
     this.usersController.updateWinnersResponse();
     this.roomController.updateRoomResponse(client);
-  }
+  };
 
   private _disconnect(client: WebSocket): void {
-    this.usersController.logout(client)
+    this.usersController.logout(client);
   }
 
-  private _addUserToRoom = (client: WebSocket, { indexRoom: roomId }: IIndexRoom): void => {
+  private _addUserToRoom = (client: WebSocket, {indexRoom: roomId}: IIndexRoom): void => {
     const user: IUserWithIndex = this.usersController.getUserByClient(client);
 
     if (this.roomController.isUserInRoom(roomId, user.index)) {
@@ -103,21 +117,20 @@ export class ServerWebsocket {
     );
     this.usersController.getAllClients().forEach((c) => this.roomController.updateRoomResponse(c));
 
-    this.roomController.addClientToRoom(roomId, client);
     const roomClients = this.roomController.getRoomClients(roomId);
     const idGame: string = this.gameController.createGame(
       roomId,
       roomClients.map((c) => this.usersController.getUserByClient(c).index),
     );
     roomClients.forEach((c) => this.gameController.createGameResponse(c, idGame, this.usersController.getUserByClient(c).index));
-  }
+  };
 
   private _createRoom = (client: WebSocket): void => {
     this.roomController.createRoom(client, this.usersController.getUserByClient(client));
     this.usersController.getAllClients().forEach((c) => this.roomController.updateRoomResponse(c));
-  }
+  };
 
-  private _addShips =(client: WebSocket, {gameId, indexPlayer, ships}: AddShipsData): void => {
+  private _addShips = (client: WebSocket, {gameId, indexPlayer, ships}: AddShipsData): void => {
     this.gameController.addShips(gameId, indexPlayer, ships);
 
     if (this.gameController.gameIsReady(gameId)) {
@@ -125,12 +138,12 @@ export class ServerWebsocket {
       this.roomController.getRoomClients(indexRoom)
         .forEach((c) => {
           const indexPlayer: string = this.usersController.getUserByClient(c).index;
-          const playerShips: IShip[] = gameService.getPlayerShips(gameId, indexPlayer);
+          const playerShips: IShip[] = this.gameController.getPlayerShips(gameId, indexPlayer);
           this.gameController.startGameResponse(c, indexPlayer, playerShips);
           this.gameController.turnResponse(c, this.usersController.getUserByClient(client).index);
         });
     }
-  }
+  };
 
   private _attack = (client: WebSocket, {gameId, indexPlayer, y, x}: AttackData): void => {
     let attackCoordinates: ICoordinate = {x, y};
@@ -148,21 +161,18 @@ export class ServerWebsocket {
     roomClients.forEach((c) => this.gameController.attackResponse(c, indexPlayer, status, attackCoordinates));
 
     if (status === AttackStatus.MISS) {
-      this.roomController
-        .getRoomClients(roomId)
-        .forEach((c) => this.gameController.turnResponse(
-          c,
-          this.roomController.getEnemyPlayerId(roomId, indexPlayer),
-        ));
+      roomClients.forEach((c) => this.gameController.turnResponse(
+        c,
+        this.roomController.getEnemyPlayerId(roomId, indexPlayer),
+      ));
     } else {
-      this.roomController
-        .getRoomClients(roomId)
-        .forEach((c) => this.gameController.turnResponse(c, indexPlayer));
+      roomClients.forEach((c) => this.gameController.turnResponse(c, indexPlayer));
     }
 
     const winner = this.gameController.getWinner(gameId);
     if (winner) {
       roomClients.forEach((c) => this.gameController.finishResponse(c, winner));
+      this.usersController.addUserWin(winner);
       this.usersController.addUserWin(winner);
       this.gameController.finishGame(gameId);
       this.roomController.deleteRoom(roomId);
@@ -170,7 +180,14 @@ export class ServerWebsocket {
 
     this.usersController.getAllClients().forEach((c) => this.roomController.updateRoomResponse(c));
     this.usersController.updateWinnersResponse();
-  }
+  };
+
+  private _singlePlay = (client: WebSocket): void => {
+    const user: IUserWithIndex = this.usersController.getUserByClient(client);
+    // delete room if exists
+    const roomId = this.roomController.createRoom(client, user);
+    new WebsocketBot(user.index, roomId).start();
+  };
 }
 
 const usersService = new UsersService();
@@ -185,4 +202,4 @@ export const serverWebsocket = new ServerWebsocket(
   usersController,
   roomController,
   gameController,
-)
+);

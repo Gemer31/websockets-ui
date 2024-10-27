@@ -14,6 +14,10 @@ export class UsersController {
     return this.usersService.addUserWin(userId);
   }
 
+  public deleteUser(userId: string): void {
+    return this.usersService.deleteUser(userId);
+  }
+
   public getUserByClient(client: WebSocket): IUserWithIndex {
     throwErrorIfInvalid(Messages.GET_USER_BY_CLIENT_FAILED, client);
 

@@ -44,6 +44,10 @@ export class GameController {
     return this.gameService.getRoomIdByGameId(gameId);
   }
 
+  public getPlayerShips(gameId: string, userId: string): IShip[] {
+    return this.gameService.getPlayerShips(gameId, userId);
+  }
+
   public getWinner(gameId: string): string {
     if (!gameId) {
       throw new Error(Messages.GET_WINNER_FAILED);

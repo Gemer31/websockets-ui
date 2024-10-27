@@ -1,5 +1,5 @@
 import { httpServer } from './http_server';
-import { serverWebsocket } from './websocket.server';
+import { serverWebsocket } from './websocket/websocket.server';
 
 const HTTP_PORT = 8181;
 const WEBSOCKET_PORT = 3000;

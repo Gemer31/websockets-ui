@@ -12,6 +12,7 @@ export enum WsOperations {
   TURN = 'turn',
   FINISH = 'finish',
   SINGLE_PLAY = 'single_play',
+  DELETE_USER = 'delete_user',
   DISCONNECT = 'disconnect',
 }
 

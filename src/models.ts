@@ -28,7 +28,11 @@ export interface IRegistered {
   registered?: boolean;
 }
 
-export interface IUser extends IName, IWins, IIndex, IPassword, IRegistered {
+export interface IBot {
+  isBot?: boolean;
+}
+
+export interface IUser extends IName, IWins, IIndex, IPassword, IRegistered, IBot {
 }
 
 export interface IUserWithWins extends IName, IWins {
@@ -37,7 +41,7 @@ export interface IUserWithWins extends IName, IWins {
 export interface IUserWithIndex extends IIndex, IName {
 }
 
-export interface IUserWithPassword extends IName, IPassword {
+export interface IUserWithPassword extends IName, IPassword, IBot {
 }
 
 export interface IRoom extends IId {

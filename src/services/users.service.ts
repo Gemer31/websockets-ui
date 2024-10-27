@@ -45,15 +45,21 @@ export class UsersService {
     return [...this.registrations.keys()];
   }
 
-  public createUser({ name, password }: IUserWithPassword): IUser {
+  public createUser({ name, password, isBot }: IUserWithPassword): IUser {
     const newUser: IUser = {
       index: crypto.randomUUID(),
       wins: 0,
       name,
       password,
+      isBot,
     };
     this.users.push(newUser);
     return newUser;
+  }
+
+  public deleteUser(userId: string) {
+    const deleteUserIndex: number = this.users.findIndex((u) => u.index === userId);
+    this.users.splice(deleteUserIndex, 1);
   }
 
   public getUser(index: string): IUser {
