@@ -37,8 +37,11 @@ export class GameController {
     return this.gameService.getWinner(gameId);
   }
 
-  public createGameResponse(client: WebSocket, gameId: string, idPlayer: string) {
-    client.send(getWsResponse(WsOperations.CREATE_GAME, {gameId, idPlayer}));
+  public createGameResponse(client: WebSocket, idGame: string, idPlayer: string) {
+    client.send(getWsResponse(
+      WsOperations.CREATE_GAME,
+      {idGame, idPlayer},
+    ));
   }
 
   public attack(gameId: string, indexPlayer: string, attackCoordinates: ICoordinate) {
