@@ -1,5 +1,5 @@
 export const BOARD_LENGTH: number = 10;
-export const BOT_ATTACK_TIMEOUT: number = 5000;
+export const BOT_ATTACK_TIMEOUT: number = 2000;
 export const BOT_SHIPS = [
   [
     {
