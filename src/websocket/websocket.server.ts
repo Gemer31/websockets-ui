@@ -83,7 +83,7 @@ export class ServerWebsocket {
     });
 
     wsClient.on('close', (code, data) => {
-      const {deleteUserId} = JSON.parse(data.toString() as string);
+      const {deleteUserId} = data ? JSON.parse(data.toString() as string) : null;
 
       this._disconnect(wsClient);
 
